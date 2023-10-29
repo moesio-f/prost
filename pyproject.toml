@@ -1,0 +1,31 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "prost"
+version = "0.0.0"
+readme = "README.md"
+description = "Parallel robust online simple tracking"
+
+keywords = ["prost"]
+requires-python = ">=3.8"
+
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Developers",
+    "Natural Language :: Portuguese",
+    "Programming Language :: Python :: 3.8",
+]
+
+dependencies = [
+    "numpy==1.23.5",
+    "openc-contrib-python==4.8.1.78"
+
+]
+
+[project.urls]
+repository = "https://github.com/moesio-f/py-abm"
+
+[tool.setuptools.packages.find]
+where = ["src"]
