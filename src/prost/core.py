@@ -7,6 +7,7 @@ from dataclasses import dataclass
 from pathlib import Path
 
 import cv2
+import gdown
 import numpy as np
 
 
@@ -27,17 +28,19 @@ class Matcher(ABC):
 
 
 class Dataset:
+    _URL = ('https://drive.google.com/uc?id='
+            '1hePLR3aU-8371Z3idmUK7cDtZp_xbEDk')
+    _DIR = Path(__file__).parent.joinpath('data')
     IMG_TEMPLATE = 'img{:05d}.png'
 
     def __init__(self, name: str):
         self._name = name
-        self._dir = Path(__file__).parent
-        self._dir = self._dir.joinpath('..', '..', 'data')
-        self._dir = self._dir.joinpath(self._name)
+        self._dir = self._DIR.joinpath(self._name).resolve()
 
         if not self._dir.exists():
             self._download(self._dir.parent)
 
+        assert self._dir.exists()
         with self._dir.joinpath(f'{self._name}_frames.txt').open() as f:
             entry = f.readlines()[0]
             self._min, self._max = map(int, entry.split(','))
@@ -46,32 +49,53 @@ class Dataset:
 
     def start_idx(self) -> int:
         return self._min
-    
+
     def end_idx(self) -> int:
-        return self._max - 1
+        return self._max
+
+    def n_images(self) -> int:
+        return self._max + 1
 
     def image(self, index: int, gray: bool = True) -> np.ndarray:
-        assert index >= self._min and index < self._max
+        assert index >= self._min and index <= self._max
         flag = cv2.IMREAD_GRAYSCALE
         if not gray:
             flag = cv2.IMREAD_COLOR
         p = self._dir.joinpath('imgs',
                                self.IMG_TEMPLATE.format(index)).resolve()
-        return cv2.imread(str(p), flag)
+        img = cv2.imread(str(p), flag)
+        mean = np.mean(img)
+        assert mean > 0 and mean < 255
+        return img
 
     def gt(self, index: int) -> MatchRect:
-        assert index >= self._min and index < self._max
+        assert index >= self._min and index <= self._max
         p = self._dir.joinpath(f'{self._name}_gt.txt')
         c = p.read_text().split('\n')
-        row = map(lambda v: int(float(v)), 
+        row = map(lambda v: int(float(v)),
                   c[index].split(','))
         return MatchRect(*row)
 
     def get(self, index: int, gray: bool = True) -> tuple[np.ndarray, MatchRect]:
         return self.image(index, gray), self.gt(index)
-    
+
     def _download(self, data_dir: Path):
-        ...
+        data_dir.mkdir(parents=True, exist_ok=False)
+        zip_path = data_dir.joinpath('data.zip')
+
+        # Fazendo download do zip
+        gdown.cached_download(self._URL,
+                              str(zip_path),
+                              postprocess=gdown.extractall)
+
+        # Apagando o zip após download e extraçaõ
+        zip_path.unlink()
+
+    @classmethod
+    def available_datasets(cls) -> list[str]:
+        return [d.name
+                for d in cls._DIR.iterdir()
+                if d.is_dir()]
 
 
 def compare_match(ds: Dataset,
