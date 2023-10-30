@@ -6,7 +6,7 @@ build-backend = "setuptools.build_meta"
 name = "prost"
 version = "0.0.0"
 readme = "README.md"
-description = "Parallel robust online simple tracking"
+description = "Parallel robust online simple tracking."
 
 keywords = ["prost"]
 requires-python = ">=3.8"
@@ -20,12 +20,13 @@ classifiers = [
 
 dependencies = [
     "numpy==1.23.5",
-    "openc-contrib-python==4.8.1.78"
-
+    "openc-contrib-python==4.8.1.78",
+    "gdown==4.7.1",
+    "matplotlib==3.8.0"
 ]
 
 [project.urls]
-repository = "https://github.com/moesio-f/py-abm"
+repository = "https://github.com/moesio-f/prost"
 
 [tool.setuptools.packages.find]
 where = ["src"]
