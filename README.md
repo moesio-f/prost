@@ -4,7 +4,8 @@ This repository provides a Python implementation of the PROST algorithm proposed
 
 The algorithm is implemented with OpenCV and NumPy.
 
-# Quick Start
+## PROST Components
 
-TODO
+The PROST algorithm has 3 components that work in a cascade manner.
 
+![](.github/.img/components.png)

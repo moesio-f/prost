@@ -37,7 +37,7 @@ class PROST(Matcher):
         if no_overlap and over_th:
             res = orf
             # Update FLOW with new ROI
-            self._flow._roi = orf
+            self._flow.set_new_roi(orf)
 
         # Whether to train the ORF or not
         if not no_overlap or self._overlap(ncc, orf):

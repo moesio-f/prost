@@ -161,3 +161,6 @@ cython_debug/
 
 **/data/*
 .vscode/*
+*.mp4
+remote/
+tmp_*/
