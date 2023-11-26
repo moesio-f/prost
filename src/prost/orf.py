@@ -35,7 +35,7 @@ class ORF(Matcher):
                  quiet: bool = True,
                  bin_prefix: str = '',
                  pos_per_img=100,
-                 neg_per_img=500) -> None:
+                 neg_per_img=250) -> None:
         # Initialize temporary directories
         #   to train the cascade classifier
         self._tmp = tempfile.TemporaryDirectory()
@@ -69,8 +69,8 @@ class ORF(Matcher):
 
     def match(self, image: np.ndarray) -> MatchRect:
         # Detect the object in the image
-        min_w, max_w = int(0.75*self._roi.w), int(1.25*self._roi.w)
-        min_h, max_h = int(0.75*self._roi.h), int(1.25*self._roi.h)
+        min_w, max_w = self._roi.w, int(1.5*self._roi.w)
+        min_h, max_h = self._roi.h, int(1.5*self._roi.h)
         matches, _, w = self._clf.detectMultiScale3(
             image,
             outputRejectLevels=True,
@@ -180,7 +180,6 @@ class ORF(Matcher):
                          f'-vec {str(out_vec)} '
                          f'-img {fpath} '
                          f'-bg {rel_bg} '
-                         f'-w {self._roi.w} -h {self._roi.h} '
                          f'-num {self._pos_p_img}{extras}')
         assert not code
 
@@ -209,7 +208,6 @@ class ORF(Matcher):
                          f'-bg {str(self._train_bg)} '
                          f'-numPos {num_pos} '
                          f'-numNeg {num_neg} '
-                         f'-w {self._roi.w} -h {self._roi.h} '
-                         f'-minHitRate 0.8 '
+                         f'-minHitRate 0.85 '
                          f'-numStages {n_stages}{extras}')
         assert not code
