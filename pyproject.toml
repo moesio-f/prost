@@ -20,7 +20,7 @@ classifiers = [
 
 dependencies = [
     "numpy==1.23.5",
-    "openc-contrib-python==4.8.1.78",
+    "opencv-contrib-python==4.8.1.78",
     "gdown==4.7.1",
     "matplotlib==3.8.0"
 ]
