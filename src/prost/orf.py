@@ -17,10 +17,10 @@ from __future__ import annotations
 
 import numpy as np
 
-from .core import Matcher, MatchRect
+from .core import TrainableMatcher, MatchRect
 
 
-class ORF(Matcher):
+class ORF(TrainableMatcher):
     def __init__(self,
                  start: np.ndarray,
                  roi: MatchRect,

@@ -18,11 +18,11 @@ from pathlib import Path
 import cv2
 import numpy as np
 
-from .core import Matcher, MatchRect
+from .core import TrainableMatcher, MatchRect
 from .external import mergevec
 
 
-class CC(Matcher):
+class CC(TrainableMatcher):
     def __init__(self,
                  start: np.ndarray,
                  roi: MatchRect,

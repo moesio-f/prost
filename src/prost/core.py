@@ -27,6 +27,14 @@ class Matcher(ABC):
         ...
 
 
+class TrainableMatcher(Matcher):
+    def prob(self) -> float:
+        ...
+
+    def train(self, image: np.ndarray, rect: MatchRect):
+        ...
+
+
 class Dataset:
     _URL = ('https://drive.google.com/uc?id='
             '1hePLR3aU-8371Z3idmUK7cDtZp_xbEDk')
@@ -76,7 +84,8 @@ class Dataset:
                   c[index].split(','))
         return MatchRect(*row)
 
-    def get(self, index: int, gray: bool = True) -> tuple[np.ndarray, MatchRect]:
+    def get(self, index: int, gray: bool = True) -> tuple[np.ndarray,
+                                                          MatchRect]:
         return self.image(index, gray), self.gt(index)
 
     def _download(self, data_dir: Path):
@@ -93,6 +102,12 @@ class Dataset:
 
     @classmethod
     def available_datasets(cls) -> list[str]:
+        if not cls._DIR.exists():
+            print('[WARNING] No datasets found,'
+                  ' instantiate the class at least once '
+                  'to download all datasets.')
+            return []
+
         return [d.name
                 for d in cls._DIR.iterdir()
                 if d.is_dir()]

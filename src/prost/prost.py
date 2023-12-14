@@ -1,10 +1,12 @@
-"""PROST.
+"""PROST implementation, which
+supports variants for the Online
+Random Forest (ORF).
 """
 from __future__ import annotations
 
 import numpy as np
 
-from .core import Matcher, MatchRect
+from .core import TrainableMatcher, Matcher, MatchRect
 from .flow import FLOW
 from .ncc import NCC
 from .orf import ORF
@@ -12,14 +14,15 @@ from .orf import ORF
 
 class PROST(Matcher):
     def __init__(self,
-                 roi: MatchRect,
                  image: np.ndarray,
-                 orf_th: float = 0.75):
+                 roi: MatchRect,
+                 orf_th: float = 0.75,
+                 variant: TrainableMatcher = ORF):
         template = image[roi.y:roi.y + roi.h,
-                                 roi.x:roi.x + roi.w]
+                         roi.x:roi.x + roi.w]
         self._ncc = NCC(template)
         self._flow = FLOW(image, roi)
-        self._orf = ORF()
+        self._orf = variant(image, roi)
         self._orf_th = orf_th
 
     def match(self, image: np.ndarray) -> MatchRect:
@@ -46,4 +49,16 @@ class PROST(Matcher):
         return res
 
     def _overlap(self, a: MatchRect, b: MatchRect) -> bool:
-        ...
+        # if rectangle has area 0, no overlap
+        if a.x == b.x or a.y == b.y or a.x == b.x or a.y == b.y:
+            return False
+
+        # If one rectangle is on left side of other
+        if a.x > b.x or b.x > a.x:
+            return False
+
+        # If one rectangle is above other
+        if a.y > b.y or b.y > a.y:
+            return False
+
+        return True
