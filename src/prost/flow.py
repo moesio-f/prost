@@ -20,6 +20,12 @@ class FLOW(Matcher):
     def match(self, image: np.ndarray) -> MatchRect:
         assert len(image.shape) == 2
 
+        if np.allclose(image, self._prev):
+            # If the image is too close to the
+            #   previous (i.e., same image),
+            #   return default ROI
+            return self._roi
+
         # Obtain the flow
         flow = cv2.calcOpticalFlowFarneback(self._prev,
                                             image,

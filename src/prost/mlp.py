@@ -43,8 +43,7 @@ class _MLPDetector(nn.Module):
         # object)
         self._clf = nn.Sequential(nn.Linear(n_hidden[-1],
                                             2,
-                                            bias=True),
-                                  nn.Softmax(dim=1))
+                                            bias=True))
 
         # Regression layer to output (x, y, w, h)
         # All values are between (0, 1) and should be multiplied
@@ -76,7 +75,7 @@ class MLP(TrainableMatcher):
 
         # Default hidden layers
         if n_hidden is None:
-            n_hidden = [500]
+            n_hidden = [500, 500]
 
         # Store variables
         self._device = device
@@ -89,6 +88,10 @@ class MLP(TrainableMatcher):
         self._optim = optim.AdamW(self._mlp.parameters(), lr=self._lr)
         self._last_prob = 0.0
         self._start_roi = roi
+        self._min_w = round(self._start_roi.w * 0.8)
+        self._max_w = round(self._start_roi.w * 1.2)
+        self._min_h = round(self._start_roi.h * 0.8)
+        self._max_h = round(self._start_roi.h * 1.2)
 
         # Send MLP to device
         self._mlp.to(device)
@@ -109,24 +112,25 @@ class MLP(TrainableMatcher):
         # Ensure that tensors are available for
         #   CPU
         logits, rect = logits.cpu(), rect.cpu()
+        probs = logits.softmax(dim=1)
 
         # Clip rect to [0, 1]
         rect = torch.clip(rect, 0, 1)
 
         # Obtain predicted class
-        _, pred = torch.max(logits, 1)
+        _, pred = torch.max(probs, 1)
 
         # If the object wasn't found
         if pred == 0:
             self._last_prob = 0.0
             return self._start_roi
 
-        self._last_prob = logits[0][1].item()
+        self._last_prob = probs[0][1].item()
         x, y, w, h = torch.squeeze(rect).tolist()
         x = round(x * img_w)
         y = round(y * img_h)
-        w = round(w * img_w)
-        h = round(h * img_h)
+        w = min(self._max_w, max(self._min_w, round(w * img_w)))
+        h = min(self._max_h, max(self._min_h, round(h * img_w)))
         return MatchRect(x, y, w, h)
 
     def prob(self) -> float:

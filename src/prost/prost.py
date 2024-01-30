@@ -16,7 +16,7 @@ class PROST(Matcher):
     def __init__(self,
                  image: np.ndarray,
                  roi: MatchRect,
-                 orf_th: float = 0.75,
+                 orf_th: float = 0.85,
                  variant: TrainableMatcher = ORF):
         template = image[roi.y:roi.y + roi.h,
                          roi.x:roi.x + roi.w]
@@ -39,6 +39,7 @@ class PROST(Matcher):
         over_th = self._orf.prob() >= self._orf_th
         if no_overlap and over_th:
             res = orf
+
             # Update FLOW with new ROI
             self._flow.set_new_roi(orf)
 

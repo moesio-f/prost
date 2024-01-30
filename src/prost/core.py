@@ -55,6 +55,10 @@ class Dataset:
 
         assert self._min == 0
 
+    @property
+    def name(self) -> str:
+        return self._name
+
     def start_idx(self) -> int:
         return self._min
 
